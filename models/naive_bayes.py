@@ -22,6 +22,7 @@ class NaiveBayes(Model):
         # Compute marginal and conditional probabilities -- case noSpam
         self.noSpam = XTrain[yTrain[:, 0] == 0]  # noSpam emails
         self.pNoSpam = len(self.noSpam) / len(XTrain)  # marginal probability noSpam
+        # Count how many non-spam mails contain each feature
         count0 = np.count_nonzero(self.noSpam, 0)
 
         # Laplace smoothing: (count + 1) / (total + 2)

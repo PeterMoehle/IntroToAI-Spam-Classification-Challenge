@@ -137,3 +137,22 @@ class Max(Function):
             return (nodes[1].value > nodes[0].value).astype(float)
         else:
             raise ValueError("Node not found in input list.")
+
+
+class Abs(Function):
+    """Absolute value function."""
+
+    def __init__(self):
+        super().__init__("Abs")
+
+    def compute(self, nodes: List[Node]) -> np.ndarray:
+        assert len(nodes) == 1, "Abs expects exactly one input."
+        return np.abs(nodes[0].value)
+
+    def derivate(self, node: Node, nodes: List[Node]) -> np.ndarray:
+        # Derivative of abs(x) wrt x is sign(x), subgradient at 0 can be set to 0
+        value = nodes[0].value
+        grad = np.sign(value)
+        # Optional: handle zero gradient (set to 0)
+        grad[value == 0] = 0
+        return grad
