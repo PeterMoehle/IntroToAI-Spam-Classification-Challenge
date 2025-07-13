@@ -3,10 +3,13 @@ digraph ComputationalGraph {
     edge [fontsize=10];
     labelloc="t";
     label="BackpropExercise";
-    w1 -> DotProduct_f4 [label="val (alpha1): 2.0000"];
-    x2 -> DotProduct_f4 [label="val (alpha2): 1.0000"];
-    DotProduct_f4 -> Subtraction_f5 [label="val (alpha4): 2.0000"];
-    y3 -> Subtraction_f5 [label="val (alpha3): 2.0000"];
-    Subtraction_f5 -> Abs_f6 [label="val (alpha5): 0.0000"];
-    Abs_f6 -> Sum_f7 [label="val (alpha6): 0.0000 | grad (beta6): 1.0000"];
+    w1 -> DotProduct_f4 [label="val (alpha1): 2.0000 | grad (beta1): 1.9640"];
+    x2 -> DotProduct_f4 [label="val (alpha2): 1.0000 | grad (beta2): 3.9281"];
+    y3 -> ElementwiseMultiplication_f5 [label="val (alpha3): 2.0000 | grad (beta3): 1.9640"];
+    DotProduct_f4 -> ElementwiseMultiplication_f5 [label="val (alpha4): 2.0000 | grad (beta4): 1.9640"];
+    ElementwiseMultiplication_f5 -> Exp_f6 [label="val (alpha5): 4.0000 | grad (beta5): 0.9820"];
+    one7 -> Addition_f8 [label="val (alpha7): 1.0000 | grad (beta7): 0.0180"];
+    Exp_f6 -> Addition_f8 [label="val (alpha6): 54.5982 | grad (beta6): 0.0180"];
+    Addition_f8 -> Log_f9 [label="val (alpha8): 55.5982 | grad (beta8): 0.0180"];
+    Log_f9 -> Sum_f10 [label="val (alpha9): 4.0181 | grad (beta9): 1.0000"];
 }
