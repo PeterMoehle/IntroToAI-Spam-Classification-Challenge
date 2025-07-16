@@ -1,4 +1,4 @@
-from models import NaiveBayes, NeuralNetwork
+from models import LinearClassifierGD
 from utils import DataLoader, Evaluator
 
 
@@ -13,16 +13,7 @@ def main():
 
     # Define models to evaluate
     models = [
-        NaiveBayes(name="Naive Bayes"),
-        #NeuralNetwork(name="NN (Hinge Loss, Hidden=32, Epochs=15, LR=0.005)",
-        #    hidden_dim=32, epochs=15, lr=0.005, loss_type="hinge"
-        #),
-        # NeuralNetwork(name="NN (Logistic Loss2, Hidden=16, Epochs=20, LR=0.01)",
-        #    hidden_dim=16, epochs=20, lr=0.01, loss_type="logistic2"
-        # ),
-        #NeuralNetwork(name="NN (MSE Loss, Hidden=64, Epochs=25, LR=0.001)",
-        #    hidden_dim=64, epochs=25, lr=0.001, loss_type="mse"
-        #),
+        LinearClassifierGD(name="LinearClassifier Gradient Descent", epochs=10, lr=0.1),
     ]
 
     print(f"\nEvaluating {len(models)} models...")
@@ -31,17 +22,26 @@ def main():
     evaluator = Evaluator(models=models, n_splits=3, random_state=42)
 
     results = evaluator.evaluate(X, y, verbose=True)
+
     evaluator.print_summary()
 
-    best_model = evaluator.best_model()
-    if best_model:
-        print(f"\nBest performing model: {best_model}")
-        best_acc = results[best_model]['mean_accuracy']
-        best_std = results[best_model]['std_accuracy']
+    best_acc_name, best_model_acc = evaluator.best_model("mean_accuracy")
+    if best_model_acc:
+        print(f"\nBest performing model (ACC): {best_acc_name}")
+        best_acc = results[best_acc_name]['mean_accuracy']
+        best_std = results[best_acc_name]['std_accuracy']
         print(f"Best accuracy: {best_acc:.4f} ± {best_std:.4f}")
 
-    print("\nEvaluation completed successfully!")
+    best_f1_name, best_model_f1 = evaluator.best_model("mean_f1")
+    if best_model_f1:
+        print(f"\nBest performing model (F1): {best_f1_name}")
+        best_f1 = results[best_f1_name]['mean_f1']
+        best_std = results[best_f1_name]['std_f1']
+        print(f"Best f1-score: {best_f1:.4f} ± {best_std:.4f}")
 
+    X_test, y_test = DataLoader.load_spam_data('./data_test')
+
+    evaluator.test_model(X_test, y_test, best_model_f1, metric="mean_f1")
 
 if __name__ == '__main__':
     main()

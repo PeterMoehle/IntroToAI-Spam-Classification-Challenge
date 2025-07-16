@@ -1,6 +1,6 @@
 import numpy as np
 
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score, f1_score
 
@@ -82,14 +82,39 @@ class Evaluator:
             std_f1 = result['std_f1']
             print(f"{model_name:<50}: ACC({mean_acc:.4f} ± {std_acc:.4f}); F1({mean_f1:.4f} {std_f1:.4f})")
 
-    def best_model(self, metric: str) -> str:
+    def best_model(self, metric: str) -> Tuple[str, Model]:
         """Identify the best performing model based on mean metric."""
         if not self.results:
             return ""
         if metric not in ["mean_accuracy", "std_accuracy", "mean_f1", "std_f1"]:
             raise ValueError(f"Invalid metric: {metric}")
-        return max(self.results.keys(), key=lambda k: self.results[k][metric])
+
+        # Find model name with the best value for the given metric
+        best_model_name = max(self.results, key=lambda name: self.results[name][metric])
+        # Find the corresponding model object
+        best_model_obj = next(model for model in self.models if model.name == best_model_name)
+        return best_model_name, best_model_obj
 
     def get_results(self) -> Dict[str, Dict[str, Any]]:
         """Get the complete evaluation results."""
         return self.results
+
+    def test_model(self, X_new: np.ndarray, y_new: np.ndarray, model: Model = None, metric: str = "mean_accuracy") -> Tuple[float, float]:
+        """Test a specific model (or the best model) on new, unseen data."""
+        if model is None:
+            model_name, model = self.best_model(metric)
+            print(f"Using best model based on {metric}: {model_name}")
+
+        # Make predictions
+        y_pred = model.get_binary_predictions(X_new).flatten()
+        y_true = y_new.astype(int).flatten()
+
+        # Calculate metrics
+        accuracy = accuracy_score(y_true, y_pred)
+        f1 = f1_score(y_true, y_pred)
+
+        print(f"\n=== Evaluation on New Data: {model.name} ===")
+        print(f"Accuracy: {accuracy:.4f}")
+        print(f"F1 Score: {f1:.4f}")
+
+        return accuracy, f1
